@@ -1,8 +1,8 @@
 package me.nallen.divisionselector.server;
 
 public class DivisionSelectorServer {
-	//public static DivisionData divisionData;
-	//DivisionGui gui;
+	public static DivisionData divisionData;
+	DivisionGui gui;
 	//TcpServer tcpServer;
 	
 	public static void main(String[] args) {
@@ -14,14 +14,14 @@ public class DivisionSelectorServer {
 	}
 	
 	public void init() {
-		/*divisionData = new DivisionData();
+		divisionData = new DivisionData();
 		divisionData.clear();
 		
 		// Start the TCP Server
-		tcpServer = new TcpServer();
-		tcpServer.run();
+		/*tcpServer = new TcpServer();
+		tcpServer.run();*/
 		
 		// Start the GUI
-		gui = new DivisionGui();*/
+		gui = new DivisionGui();
 	}
 }
