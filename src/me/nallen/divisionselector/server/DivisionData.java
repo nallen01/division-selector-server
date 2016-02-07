@@ -1,16 +1,34 @@
 package me.nallen.divisionselector.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class DivisionData {
-	private Map<String, Team> teams;
-	private List<String> divisions;
-	private Map<String, List<String>> divisionTeams;
+	private Map<String, Team> teams = new HashMap<String, Team>();
+	private List<String> divisions = new ArrayList<String>();
+	private Map<String, List<String>> divisionTeams = new HashMap<String, List<String>>();
+
+	private LinkedList<DataListener> _listeners = new LinkedList<DataListener>();
 	
 	public DivisionData() {
 		
+	}
+	
+	public synchronized void addListener(DataListener listener)  {
+		_listeners.add(listener);
+	}
+	public synchronized void removeListener(DataListener listener)   {
+		_listeners.remove(listener);
+	}
+	private synchronized void fireUpdate() {
+		Iterator<DataListener> i = _listeners.iterator();
+		while(i.hasNext())  {
+			((DataListener) i.next()).update();
+		}
 	}
 	
 	public void clear() {
