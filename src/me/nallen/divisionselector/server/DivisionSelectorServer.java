@@ -3,6 +3,7 @@ package me.nallen.divisionselector.server;
 public class DivisionSelectorServer {
 	public static DivisionData divisionData;
 	DivisionGui gui;
+	SelectorGui selectorGui;
 	//TcpServer tcpServer;
 	
 	public static void main(String[] args) {
@@ -23,5 +24,8 @@ public class DivisionSelectorServer {
 		
 		// Start the GUI
 		gui = new DivisionGui();
+		
+		// Start the Selector GUI
+		selectorGui = new SelectorGui();
 	}
 }

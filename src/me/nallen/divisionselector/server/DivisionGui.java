@@ -44,6 +44,10 @@ public class DivisionGui extends JFrame implements KeyListener, DataListener {
 	private static final int MAX_TITLE_FONT_SIZE = 35;
 	private static final double TITLE_TOP_OFFSET = 0.01;
 	
+	private static final int NUM_TEAM_COLUMNS = 1;
+	private static final double TEAM_FONT_SIZE = 0.8;
+	private static final int MAX_TEAM_FONT_SIZE = 25;
+	
 	public boolean isFullScreen = false;
 	public Dimension priorDimension = null;
 	public Point priorLocation = null;
