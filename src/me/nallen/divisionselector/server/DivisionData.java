@@ -158,6 +158,14 @@ public class DivisionData {
 		return divisions.toArray(new String[divisions.size()]);
 	}
 	
+	public String[] getTeamsForDivision(String division) {
+		if(divisionTeams.containsKey(division)) {
+			return divisionTeams.get(division).toArray(new String[divisionTeams.get(division).size()]);
+		}
+		
+		return null;
+	}
+	
 	public String[] getAllUnassignedTeams() {
 		return getTeamsForAssignedStatus(false);
 	}

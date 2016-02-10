@@ -30,15 +30,15 @@ public class TwoDivisionGui extends OverlayPanel {
 	private static final int MAX_TITLE_FONT_SIZE = 35;
 	private static final double TITLE_TOP_OFFSET = 0.01;
 	
-	private static final int NUM_TEAM_COLUMNS = 1;
-	private static final double TEAM_FONT_SIZE = 0.8;
-	private static final int MAX_TEAM_FONT_SIZE = 25;
+	private static final int NUM_TEAM_COLUMNS = 2;
 	
 	private JPanel scienceTeamsPanel;
 	private JLabel scienceTeamsTitleLabel;
+	private ScrollingTeamListPanel scienceTeamsListPanel;
 	
 	private JPanel technologyTeamsPanel;
 	private JLabel technologyTeamsTitleLabel;
+	private ScrollingTeamListPanel technologyTeamsListPanel;
 	
 	public TwoDivisionGui() {
 		setLayout(null);
@@ -61,6 +61,9 @@ public class TwoDivisionGui extends OverlayPanel {
 	    scienceTeamsTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	    scienceTeamsPanel.add(scienceTeamsTitleLabel);
 	    
+	    scienceTeamsListPanel = new ScrollingTeamListPanel(NUM_TEAM_COLUMNS);
+	    scienceTeamsPanel.add(scienceTeamsListPanel);
+	    
 	    add(scienceTeamsPanel);
 	    
 	    technologyTeamsPanel = new JPanel() {
@@ -79,6 +82,9 @@ public class TwoDivisionGui extends OverlayPanel {
 	    technologyTeamsTitleLabel = new JLabel("TECHNOLOGY");
 	    technologyTeamsTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	    technologyTeamsPanel.add(technologyTeamsTitleLabel);
+	    
+	    technologyTeamsListPanel = new ScrollingTeamListPanel(NUM_TEAM_COLUMNS);
+	    technologyTeamsPanel.add(technologyTeamsListPanel);
 	    
 	    add(technologyTeamsPanel);
 	    
@@ -99,8 +105,14 @@ public class TwoDivisionGui extends OverlayPanel {
 	}
 	
 	public void updateData() {
-		scienceTeamsTitleLabel.setText(DivisionSelectorServer.divisionData.getAllDivisions()[0].toUpperCase());
-		technologyTeamsTitleLabel.setText(DivisionSelectorServer.divisionData.getAllDivisions()[1].toUpperCase());
+		String scienceTitle = DivisionSelectorServer.divisionData.getAllDivisions()[0];
+		String technologyTitle = DivisionSelectorServer.divisionData.getAllDivisions()[1];
+		
+		scienceTeamsTitleLabel.setText(scienceTitle.toUpperCase());
+		technologyTeamsTitleLabel.setText(technologyTitle.toUpperCase());
+		
+		scienceTeamsListPanel.updateTeamList(DivisionSelectorServer.divisionData.getTeamsForDivision(scienceTitle));
+		technologyTeamsListPanel.updateTeamList(DivisionSelectorServer.divisionData.getTeamsForDivision(technologyTitle));
 	}
 
 	private void updatePositions() {
@@ -111,6 +123,10 @@ public class TwoDivisionGui extends OverlayPanel {
 		int team_box_height = (int) (TEAMS_BOX_HEIGHT * height);
 	    int team_box_x_offset = (int) (TEAMS_BOX_SIDE_OFFSET * width);
 	    int team_box_y = (int) (TEAMS_BOX_TOP_OFFSET * height);
+	    
+	    int team_box_inner_offset_x = (int) Math.ceil(TEAMS_BOX_SIDE_GAP * team_box_width);
+	    int team_box_inner_width = team_box_width - 2*team_box_inner_offset_x;
+	    int team_box_inner_height = team_box_height - (int) Math.ceil(TEAMS_BOX_BOTTOM_GAP * team_box_height);
 		
 	    
 	    scienceTeamsPanel.setBounds(team_box_x_offset, team_box_y, team_box_width, team_box_height);
@@ -125,8 +141,12 @@ public class TwoDivisionGui extends OverlayPanel {
 	    scienceTeamsTitleLabel.setBounds(0, title_y, team_box_width, title_font_size);
 	    scienceTeamsTitleLabel.setFont(new Font(scienceTeamsTitleLabel.getFont().getFontName(), Font.BOLD, title_font_size));
 	    
+	    scienceTeamsListPanel.setBounds(team_box_inner_offset_x, title_y + title_font_size, team_box_inner_width, team_box_inner_height - title_font_size - title_y);
+	    
 	    technologyTeamsTitleLabel.setBounds(0, title_y, team_box_width, title_font_size);
 	    technologyTeamsTitleLabel.setFont(new Font(technologyTeamsTitleLabel.getFont().getFontName(), Font.BOLD, title_font_size));
+	
+	    technologyTeamsListPanel.setBounds(team_box_inner_offset_x, title_y + title_font_size, team_box_inner_width, team_box_inner_height - title_font_size - title_y);
 	}
 	
 	private void drawTeamBox(Graphics g, int width, int height, Color color) {
