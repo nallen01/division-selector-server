@@ -10,16 +10,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 public class DivisionData {
-	private Map<String, Team> teams = new TreeMap<String, Team>();
-	private Map<String, Boolean> teamsHaveDivisions = new TreeMap<String, Boolean>();
+	private SortedMap<String, Team> teams = new TreeMap<String, Team>();
+	private SortedMap<String, Boolean> teamsHaveDivisions = new TreeMap<String, Boolean>();
 	private List<String> divisions = new ArrayList<String>();
-	private Map<String, List<String>> divisionTeams = new HashMap<String, List<String>>();
+	private Map<String, SortedSet<String>> divisionTeams = new HashMap<String, SortedSet<String>>();
 
 	private LinkedList<DataListener> _listeners = new LinkedList<DataListener>();
 	
@@ -74,7 +77,7 @@ public class DivisionData {
 	public void addDivision(String name) {
 		if(!divisions.contains(name)) {
 			divisions.add(name);
-			divisionTeams.put(name, new ArrayList<String>());
+			divisionTeams.put(name, new TreeSet<String>());
 			
 			fireUpdate();
 		}
