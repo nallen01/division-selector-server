@@ -79,8 +79,11 @@ public class DivisionGui extends JFrame implements KeyListener, DataListener {
 	
 	private void updateData() {
 		if(currentDivisions != DivisionSelectorServer.divisionData.getAllDivisions().length) {
-			if(contentPanel != null)
+			if(contentPanel != null) {
 				remove(contentPanel);
+				revalidate();
+				repaint();
+			}
 			
 			switch(DivisionSelectorServer.divisionData.getAllDivisions().length) {
 				case 2: contentPanel = new TwoDivisionGui(); break;

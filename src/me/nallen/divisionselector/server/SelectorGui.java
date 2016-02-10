@@ -51,6 +51,11 @@ public class SelectorGui extends JFrame implements DataListener {
 	private JTextField addDivisionName;
 	private JButton addDivisionButton;
 
+	private JPanel removeDivisionPanel;
+	private JComboBox<String> removeDivisionSelector;
+	private DefaultComboBoxModel<String> removeDivisionSelectorModel;
+	private JButton removeDivisionButton;
+
 	public SelectorGui() {
 		super("Division Selector");
 		
@@ -59,7 +64,7 @@ public class SelectorGui extends JFrame implements DataListener {
 		}
 		catch(Exception ex) {}
 		
-		getContentPane().setPreferredSize(new Dimension(400, 490));
+		getContentPane().setPreferredSize(new Dimension(400, 700));
 		
 	    setVisible(true);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -179,11 +184,35 @@ public class SelectorGui extends JFrame implements DataListener {
     			if(name.length() > 0) {
     				DivisionSelectorServer.divisionData.addDivision(name);    				
     			}
+    			
+    			addDivisionName.setText("");
 			}
 	    });
 	    addDivisionPanel.add(addDivisionButton, "w 50%, wrap");
 		
 		actionsPanel.add(addDivisionPanel, "w 100%, span, wrap");
+		
+		removeDivisionPanel = new JPanel();
+		removeDivisionPanel.setBorder(BorderFactory.createTitledBorder("Remove Division"));
+		removeDivisionPanel.setLayout(new MigLayout("fill"));
+
+		removeDivisionSelector = new JComboBox<String>();
+		removeDivisionSelectorModel = new DefaultComboBoxModel<String>();
+		removeDivisionSelector.setModel(removeDivisionSelectorModel);
+	    removeDivisionPanel.add(removeDivisionSelector, "w 50%");
+		
+	    removeDivisionButton = new JButton("Remove Division");
+	    removeDivisionButton.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			String name = removeDivisionSelector.getItemAt(removeDivisionSelector.getSelectedIndex());
+				DivisionSelectorServer.divisionData.removeDivision(name);
+    			
+    			addDivisionName.setText("");
+			}
+	    });
+	    removeDivisionPanel.add(removeDivisionButton, "w 50%, wrap");
+		
+		actionsPanel.add(removeDivisionPanel, "w 100%, span, wrap");
 	    
 	    add(actionsPanel, "wrap, w 100%");
 		
@@ -227,7 +256,14 @@ public class SelectorGui extends JFrame implements DataListener {
 		
 		removeTeamButton.setEnabled(removeTeamSelector.isEnabled());
 		
+		// Randomise Button
 		randomiseButton.setEnabled(addTeamButton.isEnabled());
+		
+		// Remove Division Panel
+		updateSelectorWithData(removeDivisionSelector, removeDivisionSelectorModel,
+				DivisionSelectorServer.divisionData.getAllDivisions());
+		
+		removeDivisionButton.setEnabled(removeDivisionSelector.isEnabled());
 	}
 
 	public void update() {
