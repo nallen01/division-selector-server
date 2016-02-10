@@ -64,7 +64,7 @@ public class SelectorGui extends JFrame implements DataListener {
 		}
 		catch(Exception ex) {}
 		
-		getContentPane().setPreferredSize(new Dimension(400, 700));
+		getContentPane().setPreferredSize(new Dimension(500, 700));
 		
 	    setVisible(true);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -132,6 +132,14 @@ public class SelectorGui extends JFrame implements DataListener {
 	    actionsPanel.setLayout(new MigLayout("fill"));
 
 		randomiseButton = new JButton("Randomise");
+		randomiseButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int ret = JOptionPane.showConfirmDialog(null, "Are you sure you want to randomise the remaining teams?");
+				if(ret == JOptionPane.YES_OPTION) {
+					DivisionSelectorServer.divisionData.randomiseRemainingTeams();
+				}
+			}
+		});
 		actionsPanel.add(randomiseButton, "w 50%");
 		
 		generateTicketsButton = new JButton("Generate Tickets");
@@ -152,6 +160,15 @@ public class SelectorGui extends JFrame implements DataListener {
 		addTeamPanel.add(addTeamDivisionSelector, "w 33%");
 		
 		addTeamButton = new JButton("Add");
+		addTeamButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String team = addTeamSelector.getItemAt(addTeamSelector.getSelectedIndex());
+				String division = addTeamDivisionSelector.getItemAt(addTeamDivisionSelector.getSelectedIndex());
+				if(team != null && division != null) {
+					DivisionSelectorServer.divisionData.assignDivisionForTeam(team, division);					
+				}
+			}
+		});
 		addTeamPanel.add(addTeamButton, "w 33%, wrap");
 		
 		actionsPanel.add(addTeamPanel, "w 100%, span, wrap");
@@ -166,6 +183,14 @@ public class SelectorGui extends JFrame implements DataListener {
 	    removeTeamPanel.add(removeTeamSelector, "w 50%");
 		
 	    removeTeamButton = new JButton("Remove");
+	    removeTeamButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String team = removeTeamSelector.getItemAt(removeTeamSelector.getSelectedIndex());
+				if(team != null) {
+					DivisionSelectorServer.divisionData.removeDivisionForTeam(team);
+				}
+			}
+	    });
 	    removeTeamPanel.add(removeTeamButton, "w 50%, wrap");
 		
 		actionsPanel.add(removeTeamPanel, "w 100%, span, wrap");
@@ -205,7 +230,9 @@ public class SelectorGui extends JFrame implements DataListener {
 	    removeDivisionButton.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
     			String name = removeDivisionSelector.getItemAt(removeDivisionSelector.getSelectedIndex());
-				DivisionSelectorServer.divisionData.removeDivision(name);
+    			if(name != null) {
+    				DivisionSelectorServer.divisionData.removeDivision(name);    				
+    			}
     			
     			addDivisionName.setText("");
 			}

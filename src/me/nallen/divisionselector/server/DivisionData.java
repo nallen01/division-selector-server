@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 import org.apache.commons.csv.CSVFormat;
@@ -21,6 +22,8 @@ public class DivisionData {
 	private Map<String, List<String>> divisionTeams = new HashMap<String, List<String>>();
 
 	private LinkedList<DataListener> _listeners = new LinkedList<DataListener>();
+	
+	private Random rand = new Random();
 	
 	public DivisionData() {
 		addDivision("Science");
@@ -122,6 +125,33 @@ public class DivisionData {
 				fireUpdate();
 			}
 		}
+	}
+	
+	public void randomiseRemainingTeams() {
+		String[] unassignedTeams = getAllUnassignedTeams();
+		
+		for(int i=unassignedTeams.length; i>0; i--) {
+			int index = rand.nextInt(i);
+			assignDivisionForTeam(unassignedTeams[index], getNextDivisionToAssign());
+			
+			for(int j=index; j<(i-1); j++) {
+				unassignedTeams[j] = unassignedTeams[j+1];
+			}
+		}
+	}
+	
+	public String getNextDivisionToAssign() {
+		int current_minimum = Integer.MAX_VALUE;
+		String retval = null;
+		
+		for(String division : divisions) {
+			if(divisionTeams.get(division).size() < current_minimum) {
+				current_minimum = divisionTeams.get(division).size();
+				retval = division;
+			}
+		}
+		
+		return retval;
 	}
 	
 	public String[] getAllDivisions() {
