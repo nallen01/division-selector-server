@@ -123,10 +123,6 @@ public class TwoDivisionGui extends OverlayPanel {
 		int team_box_height = (int) (TEAMS_BOX_HEIGHT * height);
 	    int team_box_x_offset = (int) (TEAMS_BOX_SIDE_OFFSET * width);
 	    int team_box_y = (int) (TEAMS_BOX_TOP_OFFSET * height);
-	    
-	    int team_box_inner_offset_x = (int) Math.ceil(TEAMS_BOX_SIDE_GAP * team_box_width);
-	    int team_box_inner_width = team_box_width - 2*team_box_inner_offset_x;
-	    int team_box_inner_height = team_box_height - (int) Math.ceil(TEAMS_BOX_BOTTOM_GAP * team_box_height);
 		
 	    
 	    scienceTeamsPanel.setBounds(team_box_x_offset, team_box_y, team_box_width, team_box_height);
@@ -138,15 +134,20 @@ public class TwoDivisionGui extends OverlayPanel {
 	    
 	    int title_y = (int) (team_box_height * TITLE_TOP_OFFSET);
 	    
+	    int team_box_inner_offset_x = (int) Math.ceil(TEAMS_BOX_SIDE_GAP * team_box_width);
+	    int team_box_inner_offset_y = 2*title_y + title_font_size;
+	    int team_box_inner_width = team_box_width - 2*team_box_inner_offset_x;
+	    int team_box_inner_height = team_box_height - (int) Math.ceil(TEAMS_BOX_BOTTOM_GAP * team_box_height);
+	    
 	    scienceTeamsTitleLabel.setBounds(0, title_y, team_box_width, title_font_size);
 	    scienceTeamsTitleLabel.setFont(new Font(scienceTeamsTitleLabel.getFont().getFontName(), Font.BOLD, title_font_size));
 	    
-	    scienceTeamsListPanel.setBounds(team_box_inner_offset_x, title_y + title_font_size, team_box_inner_width, team_box_inner_height - title_font_size - title_y);
+	    scienceTeamsListPanel.setBounds(team_box_inner_offset_x, team_box_inner_offset_y, team_box_inner_width, team_box_inner_height - team_box_inner_offset_y);
 	    
 	    technologyTeamsTitleLabel.setBounds(0, title_y, team_box_width, title_font_size);
 	    technologyTeamsTitleLabel.setFont(new Font(technologyTeamsTitleLabel.getFont().getFontName(), Font.BOLD, title_font_size));
 	
-	    technologyTeamsListPanel.setBounds(team_box_inner_offset_x, title_y + title_font_size, team_box_inner_width, team_box_inner_height - title_font_size - title_y);
+	    technologyTeamsListPanel.setBounds(team_box_inner_offset_x, team_box_inner_offset_y, team_box_inner_width, team_box_inner_height - team_box_inner_offset_y);
 	}
 	
 	private void drawTeamBox(Graphics g, int width, int height, Color color) {

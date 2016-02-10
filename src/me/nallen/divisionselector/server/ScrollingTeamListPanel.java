@@ -15,6 +15,7 @@ public class ScrollingTeamListPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static double ENTRY_FONT_SIZE = 0.08;
 	private static int MAX_ENTRY_FONT_SIZE = 25;
+	private static double ROW_SPACING = 0.04;
 	
 	private int numColumns;
 	
@@ -101,7 +102,8 @@ public class ScrollingTeamListPanel extends JPanel {
 		
 		panelA.setBounds(0, 0, width, height);
 		updateFontSizeForPanel(panelA);
-		((MigLayout)panelA.getLayout()).setRowConstraints("[]20[]");
+		int row_gap = (int) (height * ROW_SPACING);
+		((MigLayout)panelA.getLayout()).setRowConstraints("[]" + row_gap + "[]");
 		panelA.revalidate();
 	}
 	
