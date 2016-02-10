@@ -16,7 +16,6 @@ public class DivisionSelectorServer {
 	
 	public void init() {
 		divisionData = new DivisionData();
-		divisionData.clear();
 		
 		// Start the TCP Server
 		/*tcpServer = new TcpServer();

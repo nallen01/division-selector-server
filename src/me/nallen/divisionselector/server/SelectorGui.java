@@ -6,12 +6,14 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -35,12 +37,19 @@ public class SelectorGui extends JFrame implements DataListener {
 	
 	private JPanel addTeamPanel;
 	private JComboBox<String> addTeamSelector;
+	private DefaultComboBoxModel<String> addTeamSelectorModel;
 	private JComboBox<String> addTeamDivisionSelector;
+	private DefaultComboBoxModel<String> addTeamDivisionSelectorModel;
 	private JButton addTeamButton;
 	
 	private JPanel removeTeamPanel;
 	private JComboBox<String> removeTeamSelector;
+	private DefaultComboBoxModel<String> removeTeamSelectorModel;
 	private JButton removeTeamButton;
+
+	private JPanel addDivisionPanel;
+	private JTextField addDivisionName;
+	private JButton addDivisionButton;
 
 	public SelectorGui() {
 		super("Division Selector");
@@ -50,7 +59,7 @@ public class SelectorGui extends JFrame implements DataListener {
 		}
 		catch(Exception ex) {}
 		
-		getContentPane().setPreferredSize(new Dimension(345, 490));
+		getContentPane().setPreferredSize(new Dimension(400, 490));
 		
 	    setVisible(true);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -128,9 +137,13 @@ public class SelectorGui extends JFrame implements DataListener {
 	    addTeamPanel.setLayout(new MigLayout("fill"));
 	    
 		addTeamSelector = new JComboBox<String>();
+		addTeamSelectorModel = new DefaultComboBoxModel<String>();
+		addTeamSelector.setModel(addTeamSelectorModel);
 		addTeamPanel.add(addTeamSelector, "w 33%");
 		
 		addTeamDivisionSelector = new JComboBox<String>();
+		addTeamDivisionSelectorModel = new DefaultComboBoxModel<String>();
+		addTeamDivisionSelector.setModel(addTeamDivisionSelectorModel);
 		addTeamPanel.add(addTeamDivisionSelector, "w 33%");
 		
 		addTeamButton = new JButton("Add");
@@ -143,12 +156,34 @@ public class SelectorGui extends JFrame implements DataListener {
 	    removeTeamPanel.setLayout(new MigLayout("fill"));
 	    
 	    removeTeamSelector = new JComboBox<String>();
+		removeTeamSelectorModel = new DefaultComboBoxModel<String>();
+		removeTeamSelector.setModel(removeTeamSelectorModel);
 	    removeTeamPanel.add(removeTeamSelector, "w 50%");
 		
 	    removeTeamButton = new JButton("Remove");
 	    removeTeamPanel.add(removeTeamButton, "w 50%, wrap");
 		
 		actionsPanel.add(removeTeamPanel, "w 100%, span, wrap");
+		
+		addDivisionPanel = new JPanel();
+		addDivisionPanel.setBorder(BorderFactory.createTitledBorder("Add Division"));
+		addDivisionPanel.setLayout(new MigLayout("fill"));
+	    
+	    addDivisionName = new JTextField();
+		addDivisionPanel.add(addDivisionName, "w 50%");
+		
+	    addDivisionButton = new JButton("Add Division");
+	    addDivisionButton.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			String name = addDivisionName.getText();
+    			if(name.length() > 0) {
+    				DivisionSelectorServer.divisionData.addDivision(name);    				
+    			}
+			}
+	    });
+	    addDivisionPanel.add(addDivisionButton, "w 50%, wrap");
+		
+		actionsPanel.add(addDivisionPanel, "w 100%, span, wrap");
 	    
 	    add(actionsPanel, "wrap, w 100%");
 		
@@ -158,8 +193,41 @@ public class SelectorGui extends JFrame implements DataListener {
 	    DivisionSelectorServer.divisionData.addListener(this);
 	}
 	
-	public void updateData() {
+	private <E> void updateSelectorWithData(JComboBox<E> combo, DefaultComboBoxModel<E> model, E[] data) {
+		E previousSelection = combo.getItemAt(combo.getSelectedIndex());
+		boolean validPreviousSelection = false;
 		
+		model.removeAllElements();
+		for(E entry : data) {
+			model.addElement(entry);
+			if(entry.equals(previousSelection)) {
+				validPreviousSelection = true;
+			}
+		}
+		
+		if(validPreviousSelection) {
+			model.setSelectedItem(previousSelection);
+		}
+		combo.setEnabled(model.getSize() > 0);
+	}
+	
+	public void updateData() {
+		// Add Team Panel
+		updateSelectorWithData(addTeamSelector, addTeamSelectorModel,
+				DivisionSelectorServer.divisionData.getAllUnassignedTeams());
+		
+		updateSelectorWithData(addTeamDivisionSelector, addTeamDivisionSelectorModel,
+				DivisionSelectorServer.divisionData.getAllDivisions());
+		
+		addTeamButton.setEnabled(addTeamSelector.isEnabled() && addTeamDivisionSelector.isEnabled());
+		
+		// Remove Team Panel
+		updateSelectorWithData(removeTeamSelector, removeTeamSelectorModel,
+				DivisionSelectorServer.divisionData.getAllAssignedTeams());
+		
+		removeTeamButton.setEnabled(removeTeamSelector.isEnabled());
+		
+		randomiseButton.setEnabled(addTeamButton.isEnabled());
 	}
 
 	public void update() {

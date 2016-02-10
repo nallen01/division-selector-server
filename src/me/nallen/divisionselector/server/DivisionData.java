@@ -9,19 +9,22 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 public class DivisionData {
-	private Map<String, Team> teams = new HashMap<String, Team>();
+	private Map<String, Team> teams = new TreeMap<String, Team>();
+	private Map<String, Boolean> teamsHaveDivisions = new TreeMap<String, Boolean>();
 	private List<String> divisions = new ArrayList<String>();
 	private Map<String, List<String>> divisionTeams = new HashMap<String, List<String>>();
 
 	private LinkedList<DataListener> _listeners = new LinkedList<DataListener>();
 	
 	public DivisionData() {
-		
+		addDivision("Science");
+		addDivision("Technology");
 	}
 	
 	public synchronized void addListener(DataListener listener)  {
@@ -46,6 +49,7 @@ public class DivisionData {
 	
 	public void clearTeams() {
 		teams.clear();
+		teamsHaveDivisions.clear();
 		for(String division : divisions) {
 			divisionTeams.get(division).clear();
 		}
@@ -56,6 +60,10 @@ public class DivisionData {
 	public void clearDivisions() {
 		divisions.clear();
 		divisionTeams.clear();
+		
+		for(String team : teamsHaveDivisions.keySet()) {
+			teamsHaveDivisions.put(team, false);
+		}
 	
 		fireUpdate();
 	}
@@ -72,6 +80,11 @@ public class DivisionData {
 	public void removeDivision(String name) {
 		if(divisions.contains(name)) {
 			divisions.remove(name);
+			
+			for(String team : divisionTeams.get(name)) {
+				teamsHaveDivisions.put(team, false);
+			}
+			
 			divisionTeams.remove(name);
 			
 			fireUpdate();
@@ -81,6 +94,7 @@ public class DivisionData {
 	public void addTeam(Team team) {
 		if(!teams.containsKey(team.number)) {
 			teams.put(team.number, team);
+			teamsHaveDivisions.put(team.number, false);
 			
 			fireUpdate();
 		}
@@ -90,6 +104,7 @@ public class DivisionData {
 		for(String division : divisions) {
 			if(divisionTeams.get(division).contains(number)) {
 				divisionTeams.get(division).remove(number);
+				teamsHaveDivisions.put(number, false);
 				
 				fireUpdate();
 			}
@@ -102,10 +117,35 @@ public class DivisionData {
 				removeDivisionForTeam(number);
 				
 				divisionTeams.get(division).add(number);
+				teamsHaveDivisions.put(number, true);
 				
 				fireUpdate();
 			}
 		}
+	}
+	
+	public String[] getAllDivisions() {
+		return divisions.toArray(new String[divisions.size()]);
+	}
+	
+	public String[] getAllUnassignedTeams() {
+		return getTeamsForAssignedStatus(false);
+	}
+	
+	public String[] getAllAssignedTeams() {
+		return getTeamsForAssignedStatus(true);
+	}
+	
+	private String[] getTeamsForAssignedStatus(Boolean status) {
+		List<String> teamList = new ArrayList<String>();
+		
+		for(Map.Entry<String, Boolean> e : teamsHaveDivisions.entrySet()) {
+			if(e.getValue() == status) {
+				teamList.add(e.getKey());
+			}
+		}
+		
+		return teamList.toArray(new String[teamList.size()]);
 	}
 	
 	public void initFromCSV(File csv) throws Exception {
