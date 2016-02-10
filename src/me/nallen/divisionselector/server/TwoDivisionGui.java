@@ -20,10 +20,11 @@ public class TwoDivisionGui extends OverlayPanel {
 	private static final double TEAMS_BOX_HEIGHT = 0.906;
 	private static final double TEAMS_BOX_TOP_OFFSET = 0.047;
 	private static final double TEAMS_BOX_SIDE_OFFSET = 0.03;
-	private static final double TEAMS_BOX_X_CURVE = 0.075;
-	private static final double TEAMS_BOX_Y_CURVE = 0.0221;
-	private static final double TEAMS_BOX_SIDE_GAP = 0.046875;
-	private static final double TEAMS_BOX_BOTTOM_GAP = 0.0031;
+	
+	private static final double TEAMS_BOX_X_CURVE = 0.015 / TEAMS_BOX_WIDTH;
+	private static final double TEAMS_BOX_Y_CURVE = 0.02 / TEAMS_BOX_HEIGHT;
+	private static final double TEAMS_BOX_SIDE_GAP = 0.009375 / TEAMS_BOX_WIDTH;
+	private static final double TEAMS_BOX_BOTTOM_GAP = 0.0028 / TEAMS_BOX_HEIGHT;
 	
 	private static final double TITLE_FONT_SIZE = 0.11;
 	private static final int MAX_TITLE_FONT_SIZE = 35;
