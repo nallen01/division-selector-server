@@ -38,6 +38,7 @@ public class ScrollingTeamListPanel extends JPanel {
 	public ScrollingTeamListPanel(int numColumns) {
 		this.numColumns = numColumns;
 		
+		setLayout(null);
 		setOpaque(false);
 
 		rootPanel = new JPanel(new MigLayout("ins 0, fillx"));
@@ -57,7 +58,7 @@ public class ScrollingTeamListPanel extends JPanel {
 		rootPanel.add(panelB, "w 100%, wrap");
 		add(rootPanel);
 		
-		addComponentListener(new ComponentListener() {
+		ComponentListener resizeListener = new ComponentListener() {
 			public void componentHidden(ComponentEvent arg0) {}
 
 			public void componentMoved(ComponentEvent arg0) {}
@@ -67,7 +68,10 @@ public class ScrollingTeamListPanel extends JPanel {
 			}
 
 			public void componentShown(ComponentEvent arg0) {}
-		});
+		};
+		
+		addComponentListener(resizeListener);
+		panelA.addComponentListener(resizeListener);
 		
 		ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 		
@@ -121,16 +125,13 @@ public class ScrollingTeamListPanel extends JPanel {
 	}
 	
 	private void updatePositions() {
-		int width = getWidth();
 		int height = getHeight();
 		
 		int row_gap = (int) (height * ROW_SPACING);
 		
-		panelA.setSize(width, panelA.getHeight());
 		((MigLayout)panelA.getLayout()).setRowConstraints("[]" + row_gap + "[]");
 		updateFontSizeForPanel(panelA);
 
-		panelB.setSize(width, panelB.getHeight());
 		((MigLayout)panelB.getLayout()).setRowConstraints("[]" + row_gap + "[]");
 		updateFontSizeForPanel(panelB);
 		
@@ -154,7 +155,7 @@ public class ScrollingTeamListPanel extends JPanel {
 			scrollPos = 0;
 		}
 		
-		rootPanel.setBounds(0, -1 * scrollPos, getWidth(), rootPanel.getHeight());
+		rootPanel.setBounds(0, -1 * scrollPos, getWidth(), panelA.getHeight() + panelB.getHeight());
 	}
 	
 	public void updateTeamList(String[] teams) {
@@ -162,7 +163,5 @@ public class ScrollingTeamListPanel extends JPanel {
 		
 		updatePanel(panelA);			
 		updatePanel(panelB);
-		
-		updatePositions();
 	}
 }
