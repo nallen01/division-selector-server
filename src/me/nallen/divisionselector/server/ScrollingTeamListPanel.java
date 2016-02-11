@@ -4,6 +4,9 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,22 +16,35 @@ import net.miginfocom.swing.MigLayout;
 
 public class ScrollingTeamListPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private static double ENTRY_FONT_SIZE = 0.08;
-	private static int MAX_ENTRY_FONT_SIZE = 25;
-	private static double ROW_SPACING = 0.04;
+	private static final double ENTRY_FONT_SIZE = 0.08;
+	private static final int MAX_ENTRY_FONT_SIZE = 25;
+	private static final double ROW_SPACING = 0.04;
+	
+	private static final double SCROLL_INCREMENT = 0.002;
+	private static final double SCROLL_FREQUENCY = 30;
+	private static final int SCROLL_MILLISECONDS = (int) (1000 / SCROLL_FREQUENCY);
 	
 	private int numColumns;
 	
 	private String[] teams;
 	
+	private JPanel rootPanel;
 	private JPanel panelA;
 	private JPanel panelB;
+	
+	private boolean scroll = false;
+	private int scrollPos = 0;
+	
+	private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
 	public ScrollingTeamListPanel(int numColumns) {
 		this.numColumns = numColumns;
 		
-		setLayout(null);
 		setOpaque(false);
+
+		rootPanel = new JPanel(new MigLayout("fillx"));
+		((MigLayout)rootPanel.getLayout()).setRowConstraints("[]0[]");
+		rootPanel.setOpaque(false);
 		
 		panelA = new JPanel();
 		panelA.setLayout(new MigLayout("fillx"));
@@ -38,8 +54,9 @@ public class ScrollingTeamListPanel extends JPanel {
 		panelB.setLayout(new MigLayout("fillx"));
 		panelB.setOpaque(false);
 		
-		add(panelA);
-		add(panelB);
+		rootPanel.add(panelA, "w 100%, wrap");
+		rootPanel.add(panelB, "w 100%, wrap");
+		add(rootPanel);
 		
 		addComponentListener(new ComponentListener() {
 			public void componentHidden(ComponentEvent arg0) {}
@@ -100,17 +117,66 @@ public class ScrollingTeamListPanel extends JPanel {
 		int width = getWidth();
 		int height = getHeight();
 		
-		panelA.setBounds(0, 0, width, height);
-		updateFontSizeForPanel(panelA);
 		int row_gap = (int) (height * ROW_SPACING);
+		
+		rootPanel.setSize(width, rootPanel.getHeight());
+		
+		panelA.setSize(width, panelA.getHeight());
+		updateFontSizeForPanel(panelA);
 		((MigLayout)panelA.getLayout()).setRowConstraints("[]" + row_gap + "[]");
 		panelA.revalidate();
+
+		panelB.setSize(width, panelB.getHeight());
+		updateFontSizeForPanel(panelB);
+		((MigLayout)panelB.getLayout()).setRowConstraints("[]" + row_gap + "[]");
+		panelB.revalidate();
+		
+		if(panelA.getHeight() > height) {
+			scroll = true;
+		}
+		else {
+			scroll = false;
+			scrollPos = 0;
+		}
+		
+		updateScrolling();
+	}
+	
+	private void updateScrolling() {
+		if(scroll) {
+			panelB.setVisible(true);
+			
+			scrollPos = (scrollPos + ((int) (getHeight() * SCROLL_INCREMENT))) % panelA.getHeight();
+			
+			rootPanel.setBounds(rootPanel.getBounds().x, -1 * scrollPos, rootPanel.getWidth(), rootPanel.getHeight());
+			
+			if(ses.isShutdown()) {
+				ses = Executors.newSingleThreadScheduledExecutor();
+				
+				ses.scheduleAtFixedRate(new Runnable() {
+					public void run() {
+						updateScrolling();
+					}
+				}, 0, SCROLL_MILLISECONDS, TimeUnit.MILLISECONDS);
+			}
+		}
+		else {
+			if(!ses.isShutdown()) {
+				ses.shutdown();				
+			}
+			
+			rootPanel.setBounds(rootPanel.getBounds().x, -1 * scrollPos, rootPanel.getWidth(), rootPanel.getHeight());
+			
+			panelB.setVisible(false);
+		}
 	}
 	
 	public void updateTeamList(String[] teams) {
 		this.teams = teams;
 		
-		updatePanel(panelA);
+		updatePanel(panelA);			
 		updatePanel(panelB);
+		
+		updatePositions();
 	}
 }
