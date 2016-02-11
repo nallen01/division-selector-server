@@ -11,14 +11,18 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 
 import net.miginfocom.swing.MigLayout;
 
 public class ScrollingTeamListPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private static final double ENTRY_FONT_SIZE = 0.08;
+	private static final double ENTRY_FONT_SIZE = 0.09;
 	private static final int MAX_ENTRY_FONT_SIZE = 25;
 	private static final double ROW_SPACING = 0.04;
+	private static final double DIVIDER_HEIGHT = 0.004;
 	
 	private static final double SCROLL_INCREMENT = 0.002;
 	private static final double SCROLL_FREQUENCY = 30;
@@ -54,8 +58,8 @@ public class ScrollingTeamListPanel extends JPanel {
 		panelB.setLayout(new MigLayout("ins 0, fillx"));
 		panelB.setOpaque(false);
 
-		rootPanel.add(panelA, "w 100%, wrap");
-		rootPanel.add(panelB, "w 100%, wrap");
+		rootPanel.add(panelA, "w 80%, gapleft 10%, wrap");
+		rootPanel.add(panelB, "w 80%, gapleft 10%, wrap");
 		add(rootPanel);
 		
 		ComponentListener resizeListener = new ComponentListener() {
@@ -134,6 +138,10 @@ public class ScrollingTeamListPanel extends JPanel {
 
 		((MigLayout)panelB.getLayout()).setRowConstraints("[]" + row_gap + "[]");
 		updateFontSizeForPanel(panelB);
+		
+		MatteBorder dividerLine = new MatteBorder((int) (height * DIVIDER_HEIGHT), 0, 0, 0, DivisionGui.blueColor);
+		EmptyBorder dividerPadding = new EmptyBorder(row_gap, 0, 0, 0);
+		panelB.setBorder(new CompoundBorder(dividerLine, dividerPadding));
 		
 		if(panelA.getHeight() > height) {
 			scroll = true;
