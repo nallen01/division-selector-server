@@ -326,6 +326,9 @@ public class SelectorGui extends JFrame implements DataListener {
 		// Randomise Button
 		randomiseButton.setEnabled(addTeamButton.isEnabled());
 		
+		// Generate Tickets Button
+		generateTicketsButton.setEnabled(DivisionSelectorServer.divisionData.getAllTeams().length > 0);
+		
 		// Remove Division Panel
 		updateSelectorWithData(removeDivisionSelector, removeDivisionSelectorModel,
 				DivisionSelectorServer.divisionData.getAllDivisions());
