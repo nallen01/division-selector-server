@@ -2,7 +2,9 @@ package me.nallen.divisionselector.server;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,6 +18,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 public class DivisionData {
@@ -214,7 +217,29 @@ public class DivisionData {
 		}
 	}
 	
-	public void createDivisionCSVs(File directory) {
-		
+	public void createDivisionCSVs(File directory) throws Exception {
+		for(String division : divisions) {
+			String path = directory.getAbsolutePath() + File.separator + division + ".csv";
+			
+			try {
+				Writer out = new FileWriter(path);
+				CSVFormat csvFormat = CSVFormat.EXCEL;
+				CSVPrinter printer = new CSVPrinter(out, csvFormat);
+				printer.printRecord(new Object[] { "Number", "Name", "City", "State", "Country", "Short Name", "School", "Sponsor", "Age Group" });
+				
+				for(String teamNumber : divisionTeams.get(division)) {
+					Team team = teams.get(teamNumber);
+					Object[] data = { team.number, team.name, team.city, team.state, team.country, team.shortName, team.school, team.sponsor, team.ageGroup };
+					printer.printRecord(data);
+				}
+				
+				out.flush();
+				out.close();
+				printer.close();
+			}
+			catch(Exception ex) {
+				throw new Exception("Unable to output CSV for division " + division);
+			}
+		}
 	}
 }

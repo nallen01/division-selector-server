@@ -80,16 +80,28 @@ public class SelectorGui extends JFrame implements DataListener {
 	    importPickerButton = new JButton("Import from CSV");
 	    importPickerButton.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
-    			int retval = importPicker.showOpenDialog(importPanel);
-    			if(retval == JFileChooser.APPROVE_OPTION) {
-    				File csv = importPicker.getSelectedFile();
-    				
-    				try {
-    					DivisionSelectorServer.divisionData.initFromCSV(csv);
+				boolean doContinue = true;
+    			
+    			if(DivisionSelectorServer.divisionData.getAllTeams().length > 0) {
+    				doContinue = false;
+    				int ret = JOptionPane.showConfirmDialog(null, "All existing data will be lost, are you sure you want to continue?");
+    				if(ret == JOptionPane.YES_OPTION) {
+    					doContinue = true;
     				}
-    				catch(Exception ex) {
-    					JOptionPane.showMessageDialog(null, ex.getMessage(), "Import Error", JOptionPane.ERROR_MESSAGE);
-    				}
+    			}
+    			
+    			if(doContinue) {
+	    			int retval = importPicker.showOpenDialog(importPanel);
+	    			if(retval == JFileChooser.APPROVE_OPTION) {
+	    				File csv = importPicker.getSelectedFile();
+	    				
+	    				try {
+	    					DivisionSelectorServer.divisionData.initFromCSV(csv);
+	    				}
+	    				catch(Exception ex) {
+	    					JOptionPane.showMessageDialog(null, ex.getMessage(), "Import Error", JOptionPane.ERROR_MESSAGE);
+	    				}
+	    			}
     			}
 			}
 	    });
@@ -108,16 +120,31 @@ public class SelectorGui extends JFrame implements DataListener {
 	    exportPickerButton = new JButton("Export Division CSVs");
 	    exportPickerButton.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
-    			int retval = exportPicker.showOpenDialog(exportPanel);
-    			if(retval == JFileChooser.APPROVE_OPTION) {
-    				File dir = exportPicker.getCurrentDirectory();
-    				
-    				try {
-    					DivisionSelectorServer.divisionData.createDivisionCSVs(dir);
+    			boolean doContinue = true;
+    			
+    			if(DivisionSelectorServer.divisionData.getAllUnassignedTeams().length > 0) {
+    				doContinue = false;
+    				int ret = JOptionPane.showConfirmDialog(null, "There are remaining unassigned teams, are you sure you want to export CSVs?");
+    				if(ret == JOptionPane.YES_OPTION) {
+    					doContinue = true;
     				}
-    				catch(Exception ex) {
-    					JOptionPane.showMessageDialog(null, ex.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
-    				}
+    			}
+    			
+    			if(doContinue) {
+        			int retval = exportPicker.showSaveDialog(exportPanel);
+        			if(retval == JFileChooser.APPROVE_OPTION) {
+        				File dir = exportPicker.getSelectedFile();
+        				if(dir == null || !dir.isDirectory()) {
+            				dir = exportPicker.getCurrentDirectory();
+        				}
+        				
+        				try {
+        					DivisionSelectorServer.divisionData.createDivisionCSVs(dir);
+        				}
+        				catch(Exception ex) {
+        					JOptionPane.showMessageDialog(null, ex.getMessage(), "Export Error", JOptionPane.ERROR_MESSAGE);
+        				}
+        			}
     			}
 			}
 	    });
@@ -334,6 +361,9 @@ public class SelectorGui extends JFrame implements DataListener {
 				DivisionSelectorServer.divisionData.getAllDivisions());
 		
 		removeDivisionButton.setEnabled(removeDivisionSelector.isEnabled());
+		
+		// Export CSV Button
+		exportPickerButton.setEnabled(DivisionSelectorServer.divisionData.getAllAssignedTeams().length > 0);
 	}
 
 	public void update() {
