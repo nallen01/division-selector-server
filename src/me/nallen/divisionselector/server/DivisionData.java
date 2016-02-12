@@ -157,6 +157,10 @@ public class DivisionData {
 		return retval;
 	}
 	
+	public Team[] getAllTeams() {
+		return teams.values().toArray(new Team[teams.size()]);
+	}
+	
 	public String[] getAllDivisions() {
 		return divisions.toArray(new String[divisions.size()]);
 	}

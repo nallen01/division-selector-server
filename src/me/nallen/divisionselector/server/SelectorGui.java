@@ -34,6 +34,8 @@ public class SelectorGui extends JFrame implements DataListener {
 	private JPanel actionsPanel;
 	private JButton randomiseButton;
 	private JButton generateTicketsButton;
+	private JFileChooser generateTicketsPicker;
+	private FileNameExtensionFilter generateTicketsPickerFilter;
 	
 	private JPanel addTeamPanel;
 	private JComboBox<String> addTeamSelector;
@@ -143,7 +145,45 @@ public class SelectorGui extends JFrame implements DataListener {
 		actionsPanel.add(randomiseButton, "w 50%");
 		
 		generateTicketsButton = new JButton("Generate Tickets");
+		generateTicketsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int retval = generateTicketsPicker.showSaveDialog(importPanel);
+    			if(retval == JFileChooser.APPROVE_OPTION) {
+    				File output = generateTicketsPicker.getSelectedFile();
+    				
+    				String path = output.getAbsolutePath();
+    				if(!path.endsWith(".pdf")) {
+    					path = path + ".pdf";
+    				}
+    				
+    				Object[] options = { 1, 2, 4, 8 };
+    				Object selectedValue = JOptionPane.showInputDialog(null, "Number of tickets per page", "Layout", JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+    				
+    				if(selectedValue != null && selectedValue instanceof Integer) {
+    					int pow = 0;
+    					switch((Integer) selectedValue) {
+	    					case 1: pow = 0; break;
+	    					case 2: pow = 1; break;
+	    					case 4: pow = 2; break;
+	    					case 8: pow = 3; break;
+    					}
+    					
+        				try {
+        					TicketGenerator.createTicketPDF(path, pow);
+        					
+        				} catch (Exception ex) {
+        					ex.printStackTrace();
+        					JOptionPane.showMessageDialog(null, ex.getMessage(), "Generation Error", JOptionPane.ERROR_MESSAGE);
+        				}
+    				}
+    			}
+			}
+		});
 		actionsPanel.add(generateTicketsButton, "w 50%, wrap");
+		
+		generateTicketsPicker = new JFileChooser();
+	    generateTicketsPickerFilter = new FileNameExtensionFilter("PDF File", "pdf");
+	    generateTicketsPicker.setFileFilter(generateTicketsPickerFilter);
 
 	    addTeamPanel = new JPanel();
 	    addTeamPanel.setBorder(BorderFactory.createTitledBorder("Add Team"));
