@@ -4,7 +4,7 @@ public class DivisionSelectorServer {
 	public static DivisionData divisionData;
 	DivisionGui gui;
 	SelectorGui selectorGui;
-	//TcpServer tcpServer;
+	TcpServer tcpServer;
 	
 	public static void main(String[] args) {
 		new DivisionSelectorServer();
@@ -18,8 +18,8 @@ public class DivisionSelectorServer {
 		divisionData = new DivisionData();
 		
 		// Start the TCP Server
-		/*tcpServer = new TcpServer();
-		tcpServer.run();*/
+		tcpServer = new TcpServer();
+		tcpServer.run();
 		
 		// Start the GUI
 		gui = new DivisionGui();
