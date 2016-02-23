@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-public class TcpThread extends Thread {
+public class TcpThread extends Thread implements DataListener {
 	private static final char FIELD_SEPARATOR = ((char) 28);
 	private static final char ITEM_SEPARATOR = ((char) 29);
 	
@@ -15,34 +15,11 @@ public class TcpThread extends Thread {
     private BufferedReader in = null;
     private BufferedWriter out = null;
     
-    public enum MessageType {
-		CLEAR_ALL(0),
-		CLEAR_TEAMS(1),
-		CLEAR_DIVISIONS(2),
-    	
-    	ADD_TEAM(3),
-		ASSIGN_TEAM(4),
-		UNASSIGN_TEAM(5),
-		
-		ADD_DIVISION(6),
-		REMOVE_DIVISION(7);
-		
-		private final int id;
-		MessageType(int id) { this.id = id; }
-		public int getValue() { return id; }
-		public static MessageType fromInt(int id) {
-			MessageType[] values = MessageType.values();
-            for(int i=0; i<values.length; i++) {
-                if(values[i].getValue() == id)
-                    return values[i];
-            }
-            return null;
-		}
-	}
-    
 	public TcpThread(Socket socket) {
 		super("Division Selector TCP Thread");
 		this.socket = socket;
+	    
+	    DivisionSelectorServer.divisionData.addListener(this);
 	}
 	
 	private boolean sendMessage(String paramString) {
@@ -55,6 +32,21 @@ public class TcpThread extends Thread {
 		}
 		return false;
 	}
+	
+	private boolean sendCommand(MessageType type) {
+        return sendCommand(type, null);
+    }
+
+    private boolean sendCommand(MessageType type, String[] fields) {
+        String str = "" + type.getValue() + FIELD_SEPARATOR;
+        if(fields != null) {
+            for(String field : fields) {
+                str += field + FIELD_SEPARATOR;
+            }
+        }
+        str = str.substring(0, str.length()-1);
+        return sendMessage(str);
+    }
 	
 	public void run() {
 		try {
@@ -74,11 +66,21 @@ public class TcpThread extends Thread {
 		    			String str = in.readLine();
 		    			
 		    			if(str != null) {
-		    				parts = str.split("" + ((char)29), -1);
+		    				parts = str.split("" + FIELD_SEPARATOR, -1);
 	    					MessageType type = MessageType.fromInt(Integer.parseInt(parts[0]));
 	    					
-		    				if(parts.length == 2) {
-		    					
+		    				if(type == MessageType.ASSIGN_TEAM) {
+		    					if(parts.length == 3) {
+		    						DivisionSelectorServer.divisionData.assignDivisionForTeam(parts[1], parts[2]);
+		    					}
+		    				}
+		    				else if(type == MessageType.UNASSIGN_TEAM) {
+		    					if(parts.length == 2) {
+		    						DivisionSelectorServer.divisionData.removeDivisionForTeam(parts[1]);
+		    					}
+		    				}
+		    				else if(type == MessageType.RANDOMISE_TEAMS) {
+	    						DivisionSelectorServer.divisionData.randomiseRemainingTeams();
 		    				}
 		    			}
 		    			else {
@@ -138,5 +140,10 @@ public class TcpThread extends Thread {
 			data = data.substring(0, data.length()-1);
 		
 		sendMessage(data);
+	}
+
+	@Override
+	public void update(MessageType type, String[] params) {
+		sendCommand(type, params);
 	}
 }

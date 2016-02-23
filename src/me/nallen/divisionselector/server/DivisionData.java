@@ -42,10 +42,13 @@ public class DivisionData {
 	public synchronized void removeListener(DataListener listener)   {
 		_listeners.remove(listener);
 	}
-	private synchronized void fireUpdate() {
+	private synchronized void fireUpdate(MessageType type) {
+		fireUpdate(type, null);
+	}
+	private synchronized void fireUpdate(MessageType type, String[] args) {
 		Iterator<DataListener> i = _listeners.iterator();
 		while(i.hasNext())  {
-			((DataListener) i.next()).update();
+			((DataListener) i.next()).update(type, args);
 		}
 	}
 	
@@ -53,7 +56,7 @@ public class DivisionData {
 		clearTeams();
 		clearDivisions();
 		
-		fireUpdate();
+		fireUpdate(MessageType.CLEAR_ALL);
 	}
 	
 	public void clearTeams() {
@@ -63,7 +66,7 @@ public class DivisionData {
 			divisionTeams.get(division).clear();
 		}
 		
-		fireUpdate();
+		fireUpdate(MessageType.CLEAR_TEAMS);
 	}
 	
 	public void clearDivisions() {
@@ -74,7 +77,7 @@ public class DivisionData {
 			teamsHaveDivisions.put(team, false);
 		}
 	
-		fireUpdate();
+		fireUpdate(MessageType.CLEAR_DIVISIONS);
 	}
 	
 	public void addDivision(String name) {
@@ -82,7 +85,7 @@ public class DivisionData {
 			divisions.add(name);
 			divisionTeams.put(name, new TreeSet<String>());
 			
-			fireUpdate();
+			fireUpdate(MessageType.ADD_DIVISION, new String[] { name });
 		}
 	}
 	
@@ -96,7 +99,7 @@ public class DivisionData {
 			
 			divisionTeams.remove(name);
 			
-			fireUpdate();
+			fireUpdate(MessageType.REMOVE_DIVISION, new String[] { name });
 		}
 	}
 	
@@ -105,7 +108,7 @@ public class DivisionData {
 			teams.put(team.number, team);
 			teamsHaveDivisions.put(team.number, false);
 			
-			fireUpdate();
+			fireUpdate(MessageType.ADD_TEAM, new String[] { team.number });
 		}
 	}
 	
@@ -115,7 +118,7 @@ public class DivisionData {
 				divisionTeams.get(division).remove(number);
 				teamsHaveDivisions.put(number, false);
 				
-				fireUpdate();
+				fireUpdate(MessageType.UNASSIGN_TEAM, new String[] { number });
 			}
 		}
 	}
@@ -128,7 +131,7 @@ public class DivisionData {
 				divisionTeams.get(division).add(number);
 				teamsHaveDivisions.put(number, true);
 				
-				fireUpdate();
+				fireUpdate(MessageType.ASSIGN_TEAM, new String[] { number, division });
 			}
 		}
 	}

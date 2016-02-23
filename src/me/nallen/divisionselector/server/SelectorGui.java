@@ -366,7 +366,7 @@ public class SelectorGui extends JFrame implements DataListener {
 		exportPickerButton.setEnabled(DivisionSelectorServer.divisionData.getAllAssignedTeams().length > 0);
 	}
 
-	public void update() {
+	public void update(MessageType type, String[] params) {
 		updateData();
 	}
 }

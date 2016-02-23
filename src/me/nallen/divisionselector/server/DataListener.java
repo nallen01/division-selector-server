@@ -1,5 +1,5 @@
 package me.nallen.divisionselector.server;
 
 public interface DataListener {
-	public void update();
+	public void update(MessageType type, String[] params);
 }

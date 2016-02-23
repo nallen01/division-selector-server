@@ -125,7 +125,7 @@ public class DivisionGui extends JFrame implements KeyListener, DataListener {
 		}
 	}
 
-	public void update() {
+	public void update(MessageType type, String[] params) {
 		updateData();
 		
 		if(contentPanel != null) 
